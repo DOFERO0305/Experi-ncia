@@ -1,425 +1,700 @@
 <!DOCTYPE html>
-<html lang="pt-PT">
+<html lang="pt-MZ">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="referrer" content="no-referrer">
-    <title>Histórias Antigas | Atualização Diária</title>
+    <title>Histórias Antigas | Episódios</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        :root {
-            /* NOVA PALETA DE CORES: DOURADO PREMIUM */
-            --primary-gold: #d4af37;
-            --light-gold: #f7dc6f;
-            --dark-gold: #b59410;
-            --bg-color: #0d1117;
-            --surface-color: #161b22;
-            --border-color: #30363d;
-            --text-primary: #e6edf3;
-            --text-secondary: #8b949e;
-            --shadow-gold: rgba(212, 175, 55, 0.5);
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
+        :root { --primary: #d4af37; --bg: #141414; --surface: #2f2f2f; --text: #ffffff; --text-meta: #aaaaaa; --radius-md: 8px; --border: #333; }
+        body.light-mode { --bg: #f8fafc; --surface: #ffffff; --text: #0f172a; --text-meta: #64748b; --border: #e2e8f0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; scroll-behavior: smooth; }
         
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            overflow-x: hidden;
-            padding-bottom: 20px;
-        }
+        .navbar { position: sticky; top: 0; background: var(--bg); opacity: 0.98; z-index: 100; padding: 15px 20px; border-bottom: 1px solid var(--border); transition: 0.3s; }
+        .nav-top { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; }
+        .menu-btn { background: none; border: none; color: var(--text); font-size: 1.4rem; cursor: pointer; transition: 0.3s; }
+        .logo-container { display: flex; align-items: center; cursor: pointer; gap: 15px; }
+        .logo { font-weight: 800; font-size: 1.5rem; color: var(--text); text-decoration: none; letter-spacing: -1px; }
+        .logo span { color: var(--primary); }
 
-        /* Container Principal */
-        .container { max-width: 1200px; margin: 0 auto; padding: 15px; }
+        .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 2000; display: none; opacity: 0; transition: 0.3s; }
+        .sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: var(--bg); z-index: 2001; transition: 0.3s ease-in-out; padding: 20px; display: flex; flex-direction: column; box-shadow: 5px 0 15px rgba(0,0,0,0.2); border-right: 1px solid var(--border); }
+        .sidebar.open { left: 0; }
+        .sidebar-close { align-self: flex-end; background: none; border: none; color: var(--text); font-size: 1.5rem; cursor: pointer; margin-bottom: 10px; }
+        .sidebar h3 { color: var(--text-meta); font-size: 0.9rem; text-transform: uppercase; margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-top: 20px; }
+        .side-cat { display: block; width: 100%; text-align: left; background: none; border: none; color: var(--text); padding: 12px 10px; font-size: 1rem; cursor: pointer; transition: 0.2s; border-radius: 8px; margin-bottom: 5px; }
+        .side-cat:hover, .side-cat.active { background: var(--surface); color: var(--primary); }
 
-        /* HEADER */
-        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); }
-        .date-box { color: var(--text-secondary); font-size: 0.9rem; }
-        .refresh-icon { color: var(--primary-gold); font-size: 1.2rem; cursor: pointer; transition: 0.3s; }
-        .refresh-icon:hover { color: var(--light-gold); transform: rotate(180deg); }
+        .feed-header { max-width: 1200px; margin: 20px auto 10px; padding: 0 20px; font-size: 1.2rem; font-weight: 700; color: var(--text); display: flex; align-items: center; justify-content: space-between; }
+        .feed-count { font-size: 0.9rem; color: var(--text-meta); font-weight: normal; transition: 0.3s; }
+        .refresh-btn { background: none; border: none; color: var(--primary); font-size: 1.2rem; cursor: pointer; transition: 0.2s; padding: 5px; margin-left: 10px; }
+        .refresh-btn:active { transform: rotate(180deg) scale(0.8); }
 
-        /* ESTRUTURA: Player + Sidebar */
-        .main-layout { display: flex; gap: 20px; flex-wrap: wrap; }
-        .main-content { flex: 2; min-width: 300px; }
-        .sidebar { flex: 1; min-width: 280px; }
-
-        /* BLOCO DO PLAYER DE VÍDEO PRINCIPAL */
-        .video-player-container { background-color: var(--surface-color); padding: 10px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 15px; position: relative; }
+        .feed { padding: 20px; max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; padding-bottom: 100px; } 
+        @media(max-width: 500px) { .feed { grid-template-columns: repeat(2, 1fr); gap: 15px; } }
         
-        .video-box {
-            position: relative;
-            width: 100%;
-            padding-top: 177.77%; /* Proporção 9:16 vertical */
-            background-color: #000;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        }
-
-        .video-box iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        /* 🔒 TÉCNICA DE BLOQUEIO TOTAL DO PLAYER DO FACEBOOK */
-        /* Escudo Invisível Superior (Bloqueia Foto, Nome "Histórias Antigas" e Botão Seguir) */
-        .lock-shield-top {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 60px; /* Altura exata da barra de perfil do FB */
-            z-index: 10;
-            background: rgba(0,0,0,0.01); /* Quase invisível mas clicável */
-            cursor: default;
-        }
+        .movie-card { background: var(--surface); border-radius: var(--radius-md); overflow: hidden; cursor: pointer; transition: transform 0.2s; position: relative; aspect-ratio: 2/3; border: 1px solid var(--border); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .movie-card:hover { transform: scale(1.05); }
+        .movie-poster { width: 100%; height: 100%; object-fit: cover; }
+        .movie-rating { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.8); color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+        .movie-time { position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.85); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 4px; }
         
-        /* Escudo Invisível Inferior (Bloqueia "Ver mais no Facebook" e Reels Relacionados no final) */
-        .lock-shield-bottom {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 70px; /* Cobre a barra inferior inteira */
-            z-index: 10;
-            background: rgba(0,0,0,0.01);
-            cursor: default;
-        }
-        /* O centro do vídeo permanece livre para Play/Pause nativo */
+        .no-results { grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--text-meta); }
 
-        /* Metadados do Vídeo */
-        .video-meta { margin-top: 15px; }
-        .profile-line { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-        .profile-info { display: flex; align-items: center; gap: 10px; }
-        .profile-pic { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--primary-gold); object-fit: cover; }
-        .profile-name { font-weight: 700; color: #fff; font-size: 1.1rem; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(8px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 10px; }
+        .modal-content { background: var(--bg); max-width: 500px; width: 100%; border-radius: 16px; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.8); max-height: 95vh; overflow-y: auto; border: 1px solid var(--border); }
         
-        /* Tag Dourada Dinâmica */
-        .last-update-tag {
-            background: linear-gradient(45deg, var(--dark-gold), var(--primary-gold));
-            color: #000; font-weight: 800; font-size: 0.75rem;
-            padding: 5px 12px; border-radius: 20px; text-transform: uppercase;
-            box-shadow: 0 0 10px var(--shadow-gold);
-        }
+        /* FECHAR MODAL: Z-index altíssimo para nunca ser bloqueado pelo escudo */
+        .close-btn { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.8); color: white; border: 1px solid rgba(255,255,255,0.2); width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; z-index: 9999; transition: 0.2s; }
+        
+        .modal-info { padding: 20px; }
+        .modal-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 5px; color: var(--text); line-height: 1.3; margin-top: 10px; }
+        .modal-time-detail { font-size: 0.8rem; color: var(--text-meta); margin-bottom: 15px; display: flex; align-items: center; gap: 5px; border-bottom: 1px solid var(--border); padding-bottom: 15px;}
+        
+        /* Container do Player */
+        .trailer-container { position: relative; width: 100%; display: flex; justify-content: center; background: #000; border-radius: var(--radius-md); overflow: hidden; min-height: 400px;}
+        .trailer-container iframe { width: 100%; height: 550px; border: none; border-radius: 8px;}
+        
+        /* Escudo 1 (Topo): Bloqueia Perfil - Z-index menor que o botão X */
+        .shield-top { position: absolute; top: 0; left: 0; width: 100%; height: 65px; z-index: 50; cursor: default; }
+        
+        /* Escudo 2 (Rodapé): Bloqueia Instagram e Tela Final - Mais alto para garantir proteção */
+        .shield-bottom { position: absolute; bottom: 0; left: 0; width: 100%; height: 110px; z-index: 50; cursor: default; }
 
-        /* 🆕 NOVO BOTÃO DOURADO ANIMADO QUE ROLA PARA BAIXO */
-        .scroll-down-btn {
-            width: 100%;
-            padding: 16px;
-            margin-top: 10px;
-            border: none;
-            border-radius: 8px;
-            background: linear-gradient(45deg, var(--dark-gold), var(--primary-gold), var(--light-gold));
+        /* Banner Inteligente Animado e Estático */
+        .up-next-banner {
+            background: var(--primary); color: #000; padding: 15px 20px; border-radius: var(--radius-md);
+            margin-top: 15px; margin-bottom: 15px; display: flex; justify-content: space-between;
+            align-items: center; cursor: pointer; 
+            animation: pulse-banner 2s infinite ease-in-out;
+        }
+        @keyframes pulse-banner {
+            0% { transform: scale(1); box-shadow: 0 0 10px rgba(212, 175, 55, 0.4); }
+            50% { transform: scale(1.02); box-shadow: 0 0 25px rgba(212, 175, 55, 0.8); }
+            100% { transform: scale(1); box-shadow: 0 0 10px rgba(212, 175, 55, 0.4); }
+        }
+        .up-next-info h4 { font-size: 0.75rem; text-transform: uppercase; opacity: 0.9; margin-bottom: 4px; letter-spacing: 1px; color: #000; }
+        .up-next-info p { font-size: 1.1rem; font-weight: 800; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px; color: #000; }
+        @media(max-width: 400px) { .up-next-info p { max-width: 180px; } }
+
+        /* Linha de Ação Modificada */
+        .action-row { display: flex; gap: 10px; margin-top: 15px; margin-bottom: 15px; }
+        .btn-action { flex: 1; padding: 15px; border: none; border-radius: var(--radius-md); font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; transition: 0.2s; }
+        .btn-guardar { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+        .btn-guardar:hover { border-color: var(--primary); color: var(--primary); }
+
+        /* Botão Dourado Animado e Partilha */
+        .btn-partilhar-dourado {
+            background: linear-gradient(45deg, #FFDF00, #D4AF37, #FFDF00);
             background-size: 200% 200%;
-            color: #000;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-weight: 800;
-            font-size: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: 0.3s;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            
-            /* Animação para chamar atenção */
-            animation: gold-pulse 2s infinite, gradient-move 3s infinite linear;
+            color: #141414;
+            border: none;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+            animation: pulsoDourado 2s infinite, brilho 3s ease infinite;
         }
+        .btn-partilhar-dourado:hover { color: #000; border-color: #FFDF00; transform: scale(1.02); }
 
-        @keyframes gold-pulse {
+        @keyframes pulsoDourado {
             0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7); }
             70% { box-shadow: 0 0 0 15px rgba(212, 175, 55, 0); }
             100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
         }
-        
-        @keyframes gradient-move {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+        @keyframes brilho { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
-        .scroll-down-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
-        .scroll-down-btn:active { transform: translateY(1px); }
+        /* Janela (Modal) de Partilha */
+        .sub-modal-partilha { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .sub-modal-conteudo { background: var(--surface); padding: 25px; border-radius: 15px; text-align: center; width: 90%; max-width: 350px; position: relative; border: 1px solid var(--border); animation: abrirModal 0.3s ease-out; }
+        .sub-fechar-modal { position: absolute; top: 15px; right: 15px; font-size: 1.5rem; color: var(--text); cursor: pointer; background: none; border: none; }
+        .opcoes-partilha { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+        .btn-opcao { padding: 14px; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; font-weight: 700; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.2s; }
+        .btn-opcao:hover { filter: brightness(1.1); }
+        .btn-opcao.copiar { background-color: #4b5563; }
+        .btn-opcao.whatsapp { background-color: #25D366; }
+        .btn-opcao.mais { background-color: #3b82f6; }
+        .img-preview-partilha { width: 100%; height: 160px; object-fit: cover; border-radius: 8px; margin-top: 15px; margin-bottom: 5px; border: 1px solid var(--border); }
 
-        /* SIDEBAR / PLUGIN DE PÁGINA */
-        .fb-page-container { background-color: var(--surface-color); border-radius: 12px; border: 1px solid var(--border-color); overflow: hidden; position: sticky; top: 15px; }
+        /* Relacionados com Filtro Focado */
+        .related-section { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 15px; }
+        .related-title { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 15px; display: flex; align-items: center; gap: 8px;}
+        .related-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        @media(max-width: 400px) { .related-grid { grid-template-columns: repeat(2, 1fr); } }
+        .related-item { cursor: pointer; border-radius: 8px; overflow: hidden; position: relative; border: 1px solid var(--border); transition: 0.2s; }
+        .related-item:hover { transform: scale(1.02); border-color: var(--primary); }
+        .related-item img { width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block; }
+        .related-item-title { position: absolute; bottom: 0; background: linear-gradient(transparent, rgba(0,0,0,0.9)); color: white; width: 100%; font-size: 0.75rem; padding: 20px 5px 5px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
 
-        /* TÍTULO SEÇÃO REELS */
-        .header-2 { max-width: 1200px; margin: 30px auto 15px; padding: 0 15px; display: flex; align-items: center; justify-content: space-between; }
-        .header-2 h2 { font-weight: 800; font-size: 1.3rem; }
-        .count-tag { color: var(--text-secondary); font-size: 0.9rem; font-weight: 400; }
+        .loader { text-align: center; padding: 20px; color: var(--primary); font-size: 2rem; width: 100%; grid-column: 1/-1; opacity: 0; transition: 0.3s; min-height: 80px; }
 
-        /* GRELHA DE VÍDEOS (REELS Relacionados) */
-        .reels-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-bottom: 30px; }
-        
-        .reel-card {
-            background-color: var(--surface-color);
-            border-radius: 10px;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-            transition: 0.3s;
-            cursor: pointer;
-            position: relative;
-        }
-        
-        .reel-card:hover { transform: translateY(-5px); border-color: var(--primary-gold); box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2); }
+        .whatsapp-btn { position: fixed; bottom: 20px; right: 20px; background: #25D366; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 35px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); z-index: 900; text-decoration: none; animation: pulse-wobble 2s infinite ease-in-out; }
+        @keyframes pulse-wobble { 0% { transform: scale(1) rotate(0deg); } 10% { transform: scale(1.1) rotate(-10deg); } 20% { transform: scale(1.1) rotate(10deg); } 30% { transform: scale(1.1) rotate(-10deg); } 40% { transform: scale(1.1) rotate(10deg); } 50% { transform: scale(1) rotate(0deg); } 100% { transform: scale(1) rotate(0deg); } }
 
-        .card-thumb { position: relative; width: 100%; padding-top: 133%; /* Proporção 3:4 */ background-color: #000; }
-        .card-thumb img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
-        .reel-card:hover .card-thumb img { transform: scale(1.05); }
+        .dev-signature { position: fixed; bottom: 20px; left: 20px; background: rgba(0, 0, 0, 0.75); border-left: 4px solid var(--primary); padding: 10px 15px; border-radius: 8px; color: #ddd; font-size: 0.8rem; z-index: 900; backdrop-filter: blur(8px); box-shadow: 0 4px 15px rgba(0,0,0,0.3); pointer-events: none; }
+        .dev-signature p { margin: 0; line-height: 1.5; }
+        .dev-signature strong { color: #fff; font-size: 0.85rem; }
+        .dev-signature .email { color: var(--primary); }
 
-        /* Botão Play no Card */
-        .play-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; opacity: 0; transition: 0.3s; z-index: 2; }
-        .reel-card:hover .play-overlay { opacity: 1; }
-        .play-overlay i {
-            color: #000; background-color: var(--light-gold);
-            width: 40px; height: 40px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.2rem;
-            box-shadow: 0 0 15px var(--primary-gold);
-        }
-
-        .card-info { padding: 10px; }
-        .card-title { font-size: 0.85rem; font-weight: 600; color: var(--text-primary); line-height: 1.3; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; margin-bottom: 5px; }
-        .card-date { font-size: 0.75rem; color: var(--text-secondary); }
-
-        /* LOADING SPINNER DOURADO */
-        .loading { grid-column: 1 / -1; text-align: center; padding: 40px 0; color: var(--primary-gold); font-size: 1.5rem; }
-
-        /* RODAPÉ */
-        .footer { max-width: 1200px; margin: 0 auto; padding: 20px 15px; border-top: 1px solid var(--border-color); text-align: center; color: var(--text-secondary); font-size: 0.8rem; }
-        .dev-sig { margin-top: 5px; font-weight: 600; }
-        .dev-sig a { color: var(--primary-gold); text-decoration: none; }
-
-        /* Responsividade */
-        @media (max-width: 768px) {
-            .main-layout { flex-direction: column; }
-            .profile-name { font-size: 1rem; }
-            .fb-page-container { position: static; width: 100%; display: flex; justify-content: center; }
-        }
-        @media (max-width: 480px) {
-            .reels-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-            .logo { font-size: 1.3rem; }
+        @media(max-width: 600px) {
+            .whatsapp-btn { width: 50px; height: 50px; font-size: 28px; bottom: 15px; right: 15px; }
+            .dev-signature { bottom: 15px; left: 15px; padding: 8px 12px; font-size: 0.7rem; max-width: 65%; }
+            .dev-signature strong { font-size: 0.75rem; }
         }
     </style>
 </head>
 <body>
 
-    <div id="fb-root"></div>
-    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/pt_PT/sdk.js#xfbml=1&version=v17.0"></script>
+    <a href="https://wa.me/258849085157?text=Olá,%20gostaria%20de%20falar%20sobre%20o%20site%20Histórias%20Antigas%20ou%20fazer%20uma%20parceria." target="_blank" class="whatsapp-btn">
+        <i class="fab fa-whatsapp"></i>
+    </a>
 
-    <div class="container">
-        <header class="header">
-            <div class="date-box" id="current-date">A carregar data...</div>
-            <i class="fas fa-sync-alt refresh-icon" onclick="location.reload()" title="Atualizar página"></i>
-        </header>
+    <div class="dev-signature">
+        <p>Desenvolvido por:<br><strong>Donaldo Fernando Rodrigues</strong></p>
+        <p class="email"><i class="fas fa-envelope"></i> donald.fer.fer@gmail.com</p>
+    </div>
 
-        <div class="main-layout">
-            <div class="main-content">
-                <div class="video-player-container">
-                    <div class="video-box" id="main-video-box">
-                        <div class="lock-shield-top" title="Assistir no site"></div>
-                        
-                        <iframe id="fb-video-iframe" src="https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2FHistoriasAntigasOficial%2Fvideos%2F807755357876251%2F&show_text=false&t=0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
-                        
-                        <div class="lock-shield-bottom" title="Assistir no site"></div>
-                    </div>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    <div class="sidebar" id="sidebar">
+        <button class="sidebar-close" onclick="toggleSidebar()"><i class="fas fa-times"></i></button>
+        <h3><i class="fas fa-bars"></i> Menu</h3>
+        <button class="side-cat active" onclick="window.location.reload()"><i class="fas fa-home"></i> Início</button>
+        <button id="sidebar-bookmark-btn" class="side-cat" onclick="toggleSavedView()"><i class="fas fa-bookmark"></i> Minha Lista</button>
+    </div>
 
-                    <div class="video-meta">
-                        <div class="profile-line">
-                            <div class="profile-info">
-                                <img src="https://graph.facebook.com/HistoriasAntigasOficial/picture?type=large" alt="Histórias Antigas" class="profile-pic">
-                                <span class="profile-name">Histórias Antigas</span>
-                            </div>
-                            <span class="last-update-tag" id="dynamic-update-time">A verificar...</span>
-                        </div>
-                    </div>
-                </div>
-
-                <button class="scroll-down-btn" onclick="scrollToReels()">
-                    <i class="fas fa-clapperboard"></i>
-                    Assistir outras Histórias
-                    <i class="fas fa-arrow-down"></i>
-                </button>
+    <nav class="navbar">
+        <div class="nav-top">
+            <div class="logo-container">
+                <button class="menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+                <div class="logo" onclick="window.location.reload()">Histórias<span>Antigas</span></div>
             </div>
+            <button class="menu-btn" onclick="toggleTheme()"><i id="theme-icon" class="fas fa-sun"></i></button>
+        </div>
+    </nav>
 
-            <aside class="sidebar">
-                <div class="fb-page-container">
-                    <div class="fb-page" 
-                        data-href="https://www.facebook.com/HistoriasAntigasOficial" 
-                        data-tabs="timeline" 
-                        data-width="500" 
-                        data-height="500" 
-                        data-small-header="false" 
-                        data-adapt-container-width="true" 
-                        data-hide-cover="false" 
-                        data-show-facepile="true">
-                        <blockquote cite="https://www.facebook.com/HistoriasAntigasOficial" class="fb-xfbml-parse-ignore">
-                            <a href="https://www.facebook.com/HistoriasAntigasOficial">Histórias Antigas</a>
-                        </blockquote>
+    <div class="feed-header">
+        <div style="display: flex; align-items: center;">
+            <i class="fab fa-instagram" style="color: var(--primary); margin-right: 8px;"></i> Últimos Episódios
+            <button class="refresh-btn" onclick="fetchContent()" title="Procurar novos vídeos"><i class="fas fa-sync-alt"></i></button>
+        </div>
+        <span class="feed-count" id="feed-count-label">A carregar...</span>
+    </div>
+
+    <main class="feed" id="feed"></main>
+    <div id="loader" class="loader"><i class="fas fa-spinner fa-spin"></i></div>
+
+    <div class="modal-overlay" id="modal" onclick="closeModal(event)">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal(event, true)"><i class="fas fa-times"></i></button>
+            <div class="modal-info">
+                
+                <div class="trailer-container" id="m-trailer">
+                </div>
+                
+                <div class="up-next-banner" id="m-up-next" onclick="abrirProximoRecomendado()">
+                    <div class="up-next-info">
+                        <h4><i class="fas fa-play"></i> Assistir a Seguir</h4>
+                        <p id="m-up-next-title">Carregando...</p>
+                    </div>
+                    <div>
+                        <i class="fas fa-chevron-right" style="font-size: 1.5rem; opacity: 0.8; color: #000;"></i>
                     </div>
                 </div>
-            </aside>
+                
+                <h2 id="m-title" class="modal-title">Título</h2>
+                <div class="modal-time-detail" id="m-time"><i class="far fa-clock"></i> Publicado há pouco</div>
+                
+                <div class="action-row">
+                    <button id="m-save-btn" class="btn-action btn-guardar" onclick="toggleSave()">
+                        <i class="far fa-bookmark"></i> Guardar
+                    </button>
+                    <button id="m-share-btn" class="btn-action btn-partilhar-dourado" onclick="abrirPartilha()">
+                        <i class="fas fa-share-alt"></i> Partilhar
+                    </button>
+                </div>
+
+                <div class="related-section" id="related-section">
+                    <div class="related-title"><i class="fas fa-list-ul"></i> Relacionados:</div>
+                    <div class="related-grid" id="m-related-grid"></div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <section class="header-2" id="reels-section">
-        <h2>Recém Chegadas à Grelha</h2>
-        <span class="count-tag" id="video-count">Carregando feed...</span>
-    </section>
+    <div id="modalPartilha" class="sub-modal-partilha" onclick="fecharPartilhaFora(event)">
+        <div class="sub-modal-conteudo">
+            <button class="sub-fechar-modal" onclick="fecharPartilha()"><i class="fas fa-times"></i></button>
+            <h3 style="color: var(--text); font-size: 1.2rem; margin-bottom: 5px;">Partilhar Episódio</h3>
+            
+            <img id="img-preview-partilha" class="img-preview-partilha" src="" alt="Capa do Vídeo">
+            <p id="titulo-preview-partilha" style="font-size: 0.9rem; color: var(--text-meta); margin-bottom: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></p>
 
-    <div class="container">
-        <main class="reels-grid" id="reels-grid">
-            <div class="loading" id="loading-spinner">
-                <i class="fas fa-spinner fa-spin"></i>
+            <div class="opcoes-partilha">
+                <button id="btnCopiarLink" class="btn-opcao copiar" onclick="acaoPartilha('copiar')"><i class="fas fa-link"></i> Copiar Link</button>
+                <button id="btnWhatsapp" class="btn-opcao whatsapp" onclick="acaoPartilha('whatsapp')"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+                <button id="btnMaisOpcoes" class="btn-opcao mais" onclick="acaoPartilha('mais')"><i class="fas fa-ellipsis-h"></i> Mais Opções</button>
             </div>
-            </main>
+        </div>
     </div>
 
-    <footer class="footer">
-        <p>&copy; <span id="year"></span> Histórias Antigas. Todos os direitos reservados.</p>
-        <p class="dev-sig">Plataforma desenvolvida por <a href="mailto:donald.fer.fer@gmail.com">Donald Rodrigues</a></p>
-    </footer>
-
     <script>
-        // Configuração
-        const RSS_FEED_URL = 'https://rss.app/feeds/v1.1/PDQAMdRWA2z7DOqb.json';
-        const FB_PAGE_URL = 'https://www.facebook.com/HistoriasAntigasOficial';
+        const JSON_FEED_URL = 'https://rss.app/feeds/v1.1/PDQAMdRWA2z7DOqb.json';
+        
+        let allItems = [];
+        let displayedItems = 0;
+        const ITEMS_PER_PAGE = 12; 
+        let selectedItem = null;
+        let isSavedView = false;
+        let currentIndex = 0;
+        let isFetching = false;
+        let recomendadoAtual = null;
 
-        // Elementos DOM
-        const reelsGrid = document.getElementById('reels-grid');
-        const videoCountSpan = document.getElementById('video-count');
-        const dynamicUpdateTime = document.getElementById('dynamic-update-time');
-        const mainVideoIframe = document.getElementById('fb-video-iframe');
+        // Variáveis para a Partilha Exata
+        let urlAtualPartilha = "";
+        let tituloAtualPartilha = "";
+        let imagemAtualPartilha = "";
 
-        // Formatação de Data Atual
-        function updateCurrentDate() {
-            const now = new Date();
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            document.getElementById('current-date').innerText = now.toLocaleDateString('pt-PT', options);
-            document.getElementById('year').innerText = now.getFullYear();
+        function calcularTempoPassado(dataPublicacao) {
+            if(!dataPublicacao) return "Novo";
+            const data = new Date(dataPublicacao); 
+            const agora = new Date();
+            const segundos = Math.floor((agora - data) / 1000);
+
+            if (segundos < 60) return "Há " + Math.max(1, segundos) + " segundos";
+            const minutos = Math.floor(segundos / 60);
+            if (minutos < 60) return "Há " + minutos + " minuto" + (minutos > 1 ? "s" : "");
+            const horas = Math.floor(segundos / 3600);
+            if (horas < 24) return "Há " + horas + " hora" + (horas > 1 ? "s" : "");
+            const dias = Math.floor(segundos / 86400);
+            return "Há " + dias + " dia" + (dias > 1 ? "s" : "");
         }
 
-        // Formatação de Tempo Relativo (Há X minutos)
-        function formatRelativeTime(dateString) {
-            const now = new Date();
-            const past = new Date(dateString);
-            const diffInSeconds = Math.floor((now - past) / 1000);
+        const observer = new IntersectionObserver(e => { 
+            if(e[0].isIntersecting) { loadMoreItems(); } 
+        }, { rootMargin: "100px" });
 
-            if (diffInSeconds < 60) return `Há ${diffInSeconds}s`;
-            const diffInMinutes = Math.floor(diffInSeconds / 60);
-            if (diffInMinutes < 60) return `Há ${diffInMinutes}min`;
-            const diffInHours = Math.floor(diffInMinutes / 60);
-            if (diffInHours < 24) return `Há ${diffInHours}h`;
-            const diffInDays = Math.floor(diffInHours / 24);
-            return `Há ${diffInDays} dias`;
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            document.getElementById('theme-icon').className = document.body.classList.contains('light-mode') ? 'fas fa-moon' : 'fas fa-sun';
         }
 
-        // 🆕 FUNÇÃO PARA ROLAR ATÉ A SEÇÃO DE REELS
-        function scrollToReels() {
-            const reelsSection = document.getElementById('reels-section');
-            if (reelsSection) {
-                // Rola suavemente até o elemento, compensando um pouco o topo para não grudar
-                const topOffset = reelsSection.getBoundingClientRect().top + window.pageYOffset - 10;
-                window.scrollTo({
-                    top: topOffset,
-                    behavior: 'smooth'
-                });
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.style.display = 'none', 300);
+            } else {
+                overlay.style.display = 'block';
+                setTimeout(() => overlay.style.opacity = '1', 10);
+                sidebar.classList.add('open');
             }
         }
 
-        // Função para trocar o vídeo principal e rolar para o topo
-        function changeMainVideo(videoUrl) {
-            // Converte URL normal do FB em URL de embed
-            let embedUrl = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(videoUrl)}&show_text=false&t=0`;
-            
-            // Troca o src do iframe
-            mainVideoIframe.src = embedUrl;
-            
-            // Rola suavemente para o topo do player para o usuário assistir
-            window.scrollTo({
-                top: document.querySelector('.video-player-container').offsetTop - 10,
-                behavior: 'smooth'
-            });
-        }
+        async function fetchContent(isBackground = false) {
+            if(isFetching) return;
+            isFetching = true;
+            if(!isBackground) document.getElementById('loader').style.opacity = '1';
 
-        // Busca dados do RSS
-        async function fetchReels() {
             try {
-                const response = await fetch(RSS_FEED_URL);
-                if (!response.ok) throw new Error('Falha ao buscar feed');
-                const data = await response.json();
-                
-                // Remove spinner
-                const spinner = document.getElementById('loading-spinner');
-                if(spinner) spinner.remove();
+                const urlLimpa = `${JSON_FEED_URL}?t=${new Date().getTime()}`;
+                let data = null;
 
-                const items = data.items || [];
-                
-                // Atualiza contagem
-                videoCountSpan.innerText = `${items.length} vídeos na grelha`;
+                try {
+                    const res1 = await fetch(urlLimpa, { cache: "no-store" });
+                    if(res1.ok) data = await res1.json();
+                } catch(e) {}
 
-                if (items.length > 0) {
-                    // Atualiza tempo dinâmico do player com o vídeo mais recente
-                    dynamicUpdateTime.innerText = formatRelativeTime(items[0].date_published);
-                    
-                    // Renderiza os cards
-                    items.forEach(item => {
-                        // Extração da imagem de capa (tentativas múltiplas)
-                        let mediaUrl = 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=400';
-                        if (item.attachments && item.attachments.length > 0 && item.attachments[0].url) {
-                            mediaUrl = item.attachments[0].url;
-                        } else if (item.image) {
-                            mediaUrl = item.image;
-                        }
-
-                        // Limpa título (remove HTML se houver)
-                        const cleanTitle = item.title ? item.title.replace(/<\/?[^>]+(>|$)/g, "") : "História Antiga";
-                        
-                        // Cria elemento do card
-                        const card = document.createElement('div');
-                        card.className = 'reel-card';
-                        // Ao clicar, chama a função de troca, passando a URL do item
-                        card.onclick = () => changeMainVideo(item.url);
-
-                        card.innerHTML = `
-                            <div class="card-thumb">
-                                <img src="${mediaUrl}" alt="${cleanTitle}" loading="lazy">
-                                <div class="play-overlay"><i class="fas fa-play"></i></div>
-                            </div>
-                            <div class="card-info">
-                                <h3 class="card-title">${cleanTitle}</h3>
-                                <p class="card-date">${formatRelativeTime(item.date_published)}</p>
-                            </div>
-                        `;
-                        reelsGrid.appendChild(card);
-                    });
-                } else {
-                    reelsGrid.innerHTML = '<div class="loading">Nenhum vídeo encontrado recentemente.</div>';
+                if (!data || !data.items) {
+                    try {
+                        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(urlLimpa)}`;
+                        const res2 = await fetch(proxyUrl, { cache: "no-store" });
+                        if(res2.ok) data = await res2.json();
+                    } catch(e) {}
                 }
 
-            } catch (error) {
-                console.error('Erro:', error);
-                reelsGrid.innerHTML = '<div class="loading" style="color:#ef4444;">Erro ao carregar o feed. Por favor, tente mais tarde.</div>';
-                videoCountSpan.innerText = 'Erro';
+                if (!data || !data.items || !Array.isArray(data.items)) throw new Error("Erro de dados.");
+                
+                let cachedData = JSON.parse(localStorage.getItem('historias_antigas_cache_v1') || '[]');
+                let novosEncontrados = false;
+                
+                data.items.forEach(newItem => {
+                    let linkReal = newItem.url || newItem.id || "";
+                    let idReal = newItem.id || linkReal;
+                    let tituloReal = newItem.title || "Episódio";
+                    let dataReal = newItem.date_published || new Date().toISOString();
+                    
+                    let imagemCapa = newItem.image || "";
+                    if (!imagemCapa && newItem.content_html) {
+                        const imgMatch = newItem.content_html.match(/src=["']([^"']+)["']/);
+                        if (imgMatch) imagemCapa = imgMatch[1];
+                    }
+                    
+                    if (imagemCapa && imagemCapa.startsWith('http')) {
+                        imagemCapa = `https://wsrv.nl/?url=${encodeURIComponent(imagemCapa)}`;
+                    } else {
+                        imagemCapa = 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=500';
+                    }
+
+                    if (linkReal && !cachedData.some(oldItem => oldItem.guid === idReal || oldItem.link === linkReal)) {
+                        cachedData.push({ guid: idReal, title: tituloReal, link: linkReal, pubDate: dataReal, thumbnail: imagemCapa });
+                        novosEncontrados = true;
+                    }
+                });
+                
+                cachedData.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+                localStorage.setItem('historias_antigas_cache_v1', JSON.stringify(cachedData));
+                allItems = cachedData;
+
+                if(!isBackground) {
+                    const labelMsg = document.getElementById('feed-count-label');
+                    if(novosEncontrados || allItems.length > 0) {
+                        labelMsg.innerText = `${allItems.length} vídeos disponíveis`;
+                        displayedItems = 0;
+                        document.getElementById('feed').innerHTML = '';
+                        loadMoreItems(); 
+                    } else {
+                        labelMsg.innerText = "À espera de conteúdo...";
+                    }
+                    document.getElementById('loader').style.opacity = '0';
+                } else if(novosEncontrados && !isSavedView && displayedItems > 0) {
+                    document.getElementById('feed-count-label').innerText = `${allItems.length} vídeos disponíveis`;
+                    const feed = document.getElementById('feed');
+                    feed.innerHTML = '';
+                    let itemsAnteriores = displayedItems;
+                    displayedItems = 0;
+                    const batch = allItems.slice(0, itemsAnteriores);
+                    batch.forEach(item => desenharCartao(item, feed));
+                    displayedItems = itemsAnteriores;
+                }
+
+            } catch (e) { 
+                if(!isBackground) {
+                    allItems = JSON.parse(localStorage.getItem('historias_antigas_cache_v1') || '[]');
+                    if(allItems.length > 0) {
+                        document.getElementById('feed-count-label').innerText = `${allItems.length} vídeos na memória`;
+                        displayedItems = 0;
+                        document.getElementById('feed').innerHTML = '';
+                        loadMoreItems();
+                    } else {
+                        document.getElementById('feed').innerHTML = "<div class='no-results'>A procurar ligação...</div>";
+                    }
+                    document.getElementById('loader').style.opacity = '0';
+                }
+            }
+            
+            const btnIcon = document.querySelector('.refresh-btn i');
+            if(btnIcon) btnIcon.classList.remove('fa-spin');
+            isFetching = false;
+        }
+
+        document.querySelector('.refresh-btn').addEventListener('click', function() {
+            this.querySelector('i').classList.add('fa-spin');
+        });
+
+        function desenharCartao(item, contentor) {
+            const card = document.createElement('div');
+            card.className = 'movie-card';
+            card.addEventListener('click', () => openModal(item));
+            
+            const imgUrl = item.thumbnail;
+            const tempoStr = calcularTempoPassado(item.pubDate);
+            
+            card.innerHTML = `
+                <img class="movie-poster" src="${imgUrl}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=500'">
+                <div class="movie-rating"><i class="fas fa-play" style="color: var(--primary);"></i></div>
+                <div class="movie-time"><i class="far fa-clock"></i> ${tempoStr}</div>
+            `;
+            contentor.appendChild(card);
+        }
+
+        function loadMoreItems() {
+            if (isSavedView) return; 
+            if (displayedItems >= allItems.length) {
+                document.getElementById('loader').style.opacity = '0'; 
+                return; 
+            }
+            document.getElementById('loader').style.opacity = '1';
+            const nextBatch = allItems.slice(displayedItems, displayedItems + ITEMS_PER_PAGE);
+            const feed = document.getElementById('feed');
+            
+            nextBatch.forEach(item => desenharCartao(item, feed));
+            displayedItems += ITEMS_PER_PAGE;
+            if (displayedItems >= allItems.length) { document.getElementById('loader').style.opacity = '0'; }
+        }
+
+        setInterval(() => {
+            if(!isSavedView && displayedItems > 0) {
+                const feed = document.getElementById('feed');
+                feed.innerHTML = '';
+                let limite = displayedItems;
+                displayedItems = 0;
+                allItems.slice(0, limite).forEach(item => desenharCartao(item, feed));
+                displayedItems = limite;
+            }
+        }, 60000);
+
+        setInterval(() => { fetchContent(true); }, 60000); 
+
+        // NOVO: Algoritmo Inteligente sem Loop (Analisa sempre em Frente)
+        function encontrarProximoInteligente(itemAtual, lista) {
+            let tituloAtual = (itemAtual.title || "").toLowerCase();
+            let match = tituloAtual.match(/(?:parte|pt|ep|episódio|capítulo)\s*(\d+)/i);
+            
+            // 1. Tentar encontrar a "Parte 2, Parte 3..." exata
+            if (match) {
+                let numProximo = parseInt(match[1]) + 1;
+                let tituloBase = tituloAtual.replace(/(?:parte|pt|ep|episódio|capítulo)\s*\d+/i, '').trim();
+                let keywords = tituloBase.match(/\b\w{4,}\b/g) || [];
+                
+                for (let i = 1; i < lista.length; i++) {
+                    let idx = (currentIndex + i) % lista.length;
+                    let cand = lista[idx];
+                    let candTitulo = (cand.title || "").toLowerCase();
+                    let candMatch = candTitulo.match(/(?:parte|pt|ep|episódio|capítulo)\s*(\d+)/i);
+                    
+                    if (candMatch && parseInt(candMatch[1]) === numProximo) {
+                        let matches = 0;
+                        keywords.forEach(kw => { if (candTitulo.includes(kw)) matches++; });
+                        if (matches > 0 || keywords.length === 0) return cand; 
+                    }
+                }
+            }
+            
+            // 2. Se não tiver partes, busca pelo mesmo assunto na frente para não voltar atrás (Evita Loop)
+            let keywords = tituloAtual.match(/\b\w{5,}\b/g) || [];
+            
+            if (keywords.length > 0) {
+                for (let i = 1; i < lista.length; i++) {
+                    let idx = (currentIndex + i) % lista.length;
+                    let cand = lista[idx];
+                    let candTitulo = (cand.title || "").toLowerCase();
+                    let matches = 0;
+                    
+                    keywords.forEach(kw => { if(candTitulo.includes(kw)) matches++; });
+                    if (matches > 0) return cand;
+                }
+            }
+            
+            // 3. Se nada for parecido, apenas segue para o vídeo mais recente/próximo da lista
+            return lista[(currentIndex + 1) % lista.length];
+        }
+
+        function openModal(item) {
+            selectedItem = item;
+            let currentList = isSavedView ? JSON.parse(localStorage.getItem('historias_antigas_salvas') || '[]') : allItems;
+            currentIndex = currentList.findIndex(x => x.guid === item.guid);
+            
+            let rawTitle = item.title || "Episódio";
+            rawTitle = rawTitle.split('#')[0].trim(); 
+            document.getElementById('m-title').innerText = rawTitle;
+            
+            const tempoStr = calcularTempoPassado(item.pubDate);
+            document.getElementById('m-time').innerHTML = `<i class="far fa-clock"></i> Publicado ${tempoStr.toLowerCase()}`;
+            
+            // Captura os dados exatos do vídeo clicado para partilhar
+            urlAtualPartilha = item.link;
+            tituloAtualPartilha = rawTitle;
+            imagemAtualPartilha = item.thumbnail;
+            
+            let linkVideo = item.link;
+            let embedHtml = "";
+            
+            if (linkVideo.includes('instagram.com')) {
+                let urlLimpa = linkVideo.split('?')[0];
+                if (!urlLimpa.endsWith('/')) { urlLimpa += '/'; }
+                let urlEmbedIg = urlLimpa + 'embed/?hidecaption=true';
+                
+                // ESCUDOS REFORÇADOS: Z-index=50 (para não tapar o botão X) e Altura Máxima no rodapé
+                embedHtml = `
+                    <div class="shield-top"></div>
+                    <iframe src="${urlEmbedIg}" width="100%" height="550" frameborder="0" scrolling="no" allowtransparency="true"></iframe>
+                    <div class="shield-bottom"></div>
+                `;
+            } else {
+                embedHtml = `<iframe src="${linkVideo}" width="100%" height="550" frameborder="0"></iframe>`;
+            }
+            
+            document.getElementById('m-trailer').innerHTML = embedHtml;
+
+            // Define o Próximo Vídeo Inteligente e mostra no Banner Permanente
+            recomendadoAtual = encontrarProximoInteligente(item, currentList);
+            const upNextBanner = document.getElementById('m-up-next');
+            
+            if (recomendadoAtual) {
+                let tituloRecomendado = recomendadoAtual.title ? recomendadoAtual.title.split('#')[0].trim() : "Próximo Episódio";
+                document.getElementById('m-up-next-title').innerText = tituloRecomendado;
+                upNextBanner.style.display = 'flex'; // SEM ATRASO (Estático e Animado via CSS)
+            } else {
+                upNextBanner.style.display = 'none';
+            }
+
+            // Grelha de Relacionados: FILTRO APENAS POR TÍTULO PARECIDO
+            const relatedContainer = document.getElementById('m-related-grid');
+            relatedContainer.innerHTML = '';
+            
+            const itemKeywords = (item.title || "").toLowerCase().match(/\b\w{5,}\b/g) || [];
+            let relatedItems = currentList.filter(x => {
+                if(x.guid === item.guid) return false;
+                let candTitle = (x.title || "").toLowerCase();
+                let matches = 0;
+                itemKeywords.forEach(kw => { if(candTitle.includes(kw)) matches++; });
+                x.matchScore = matches;
+                return matches > 0 || itemKeywords.length === 0; // Só entra se tiver pontuação
+            }).sort((a,b) => b.matchScore - a.matchScore).slice(0, 6);
+            
+            // Se não encontrou nenhuns relacionados, usa os da mesma altura de publicação
+            if(relatedItems.length === 0) {
+                relatedItems = currentList.filter(x => x.guid !== item.guid).slice(0, 6);
+            }
+
+            if(relatedItems.length > 0) {
+                relatedItems.forEach(rel => {
+                    let relTitle = rel.title ? rel.title.split('#')[0].trim() : "Ver mais";
+                    const div = document.createElement('div');
+                    div.className = 'related-item';
+                    div.onclick = () => { openModal(rel); document.querySelector('.modal-content').scrollTop = 0; };
+                    div.innerHTML = `<img src="${rel.thumbnail}" onerror="this.src='https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=500'"><div class="related-item-title">${relTitle}</div>`;
+                    relatedContainer.appendChild(div);
+                });
+                document.getElementById('related-section').style.display = 'block';
+            } else {
+                document.getElementById('related-section').style.display = 'none';
+            }
+
+            updateActionBtns();
+            document.getElementById('modal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function abrirProximoRecomendado() {
+            if(recomendadoAtual) {
+                openModal(recomendadoAtual);
+                document.querySelector('.modal-content').scrollTop = 0;
             }
         }
 
-        // Inicialização
-        updateCurrentDate();
-        fetchReels();
+        function closeModal(event, force = false) {
+            if (force || event.target.id === 'modal') {
+                document.getElementById('modal').style.display = 'none';
+                document.body.style.overflow = 'auto';
+                document.getElementById('m-trailer').innerHTML = ''; 
+            }
+        }
 
+        function toggleSave() {
+            let saved = JSON.parse(localStorage.getItem('historias_antigas_salvas') || '[]');
+            const idx = saved.findIndex(x => x.guid === selectedItem.guid);
+            
+            if(idx > -1) { saved.splice(idx, 1); } 
+            else { saved.push(selectedItem); }
+            
+            localStorage.setItem('historias_antigas_salvas', JSON.stringify(saved));
+            updateActionBtns();
+            
+            if(isSavedView) {
+                const feed = document.getElementById('feed');
+                feed.innerHTML = '';
+                saved.forEach(item => desenharCartao(item, feed));
+            }
+        }
+
+        function toggleSavedView() {
+            toggleSidebar();
+            isSavedView = !isSavedView;
+            const btn = document.getElementById('sidebar-bookmark-btn');
+            const feed = document.getElementById('feed');
+            
+            if(isSavedView) {
+                btn.classList.add('active');
+                const saved = JSON.parse(localStorage.getItem('historias_antigas_salvas') || '[]');
+                document.getElementById('feed-count-label').style.display = 'none';
+                document.querySelector('.feed-header span:first-child').innerHTML = '<i class="fas fa-bookmark" style="color: var(--text);"></i> Minha Lista';
+                document.querySelector('.refresh-btn').style.display = 'none';
+                document.getElementById('loader').style.opacity = '0';
+                
+                feed.innerHTML = '';
+                if(saved.length === 0) feed.innerHTML = "<div class='no-results'>Nenhum episódio guardado.</div>";
+                saved.forEach(item => desenharCartao(item, feed));
+            } else {
+                btn.classList.remove('active');
+                document.getElementById('feed-count-label').style.display = 'block';
+                document.querySelector('.feed-header span:first-child').innerHTML = '<i class="fab fa-instagram" style="color: var(--primary);"></i> Últimos Episódios';
+                document.querySelector('.refresh-btn').style.display = 'inline-block';
+                
+                displayedItems = 0;
+                feed.innerHTML = '';
+                loadMoreItems();
+            }
+        }
+
+        function updateActionBtns() {
+            const saved = JSON.parse(localStorage.getItem('historias_antigas_salvas') || '[]');
+            const isSaved = saved.some(x => x.guid === selectedItem.guid);
+            const saveBtn = document.getElementById('m-save-btn');
+            
+            if(isSaved) { 
+                saveBtn.style.color = 'var(--primary)';
+                saveBtn.style.borderColor = 'var(--primary)';
+                saveBtn.innerHTML = '<i class="fas fa-bookmark"></i> Guardado na Lista'; 
+            } else { 
+                saveBtn.style.color = 'var(--text)'; 
+                saveBtn.style.borderColor = 'var(--border)';
+                saveBtn.innerHTML = '<i class="far fa-bookmark"></i> Guardar'; 
+            }
+        }
+
+        // Funções para a Partilha
+        function abrirPartilha() {
+            document.getElementById('img-preview-partilha').src = imagemAtualPartilha;
+            document.getElementById('titulo-preview-partilha').innerText = tituloAtualPartilha;
+            document.getElementById('modalPartilha').style.display = 'flex';
+        }
+
+        function fecharPartilha() {
+            document.getElementById('modalPartilha').style.display = 'none';
+        }
+
+        function fecharPartilhaFora(event) {
+            if (event.target.id === 'modalPartilha') { fecharPartilha(); }
+        }
+
+        async function acaoPartilha(tipo) {
+            const msgTexto = `${tituloAtualPartilha}\nAssiste a este episódio aqui: ${urlAtualPartilha}`;
+            
+            if (tipo === 'copiar') {
+                try {
+                    await navigator.clipboard.writeText(urlAtualPartilha);
+                    const btn = document.getElementById('btnCopiarLink');
+                    btn.innerHTML = '<i class="fas fa-check"></i> Copiado!';
+                    setTimeout(() => btn.innerHTML = '<i class="fas fa-link"></i> Copiar Link', 2000);
+                } catch(e) { alert("Não foi possível copiar o link."); }
+            } 
+            else if (tipo === 'whatsapp') {
+                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msgTexto)}`, "_blank");
+            } 
+            else if (tipo === 'mais') {
+                if (navigator.share) {
+                    try {
+                        await navigator.share({
+                            title: tituloAtualPartilha,
+                            text: 'Vê este episódio fantástico!',
+                            url: urlAtualPartilha
+                        });
+                    } catch (err) { console.log("Partilha fechada."); }
+                } else {
+                    alert("A partilha nativa não é suportada neste telemóvel/navegador.");
+                }
+            }
+        }
+
+        window.onload = () => { 
+            observer.observe(document.getElementById('loader'));
+            fetchContent(); 
+        };
     </script>
 
     <script data-cfasync="false" type="text/javascript" id="clever-core">
