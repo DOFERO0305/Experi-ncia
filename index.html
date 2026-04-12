@@ -49,64 +49,35 @@
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(8px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 10px; }
         .modal-content { background: var(--bg); max-width: 500px; width: 100%; border-radius: 16px; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.8); max-height: 95vh; overflow-y: auto; border: 1px solid var(--border); }
         
-        /* FECHAR MODAL: Z-index altíssimo para nunca ser bloqueado pelo escudo */
         .close-btn { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.8); color: white; border: 1px solid rgba(255,255,255,0.2); width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; z-index: 9999; transition: 0.2s; }
         
         .modal-info { padding: 20px; }
         .modal-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 5px; color: var(--text); line-height: 1.3; margin-top: 10px; }
         .modal-time-detail { font-size: 0.8rem; color: var(--text-meta); margin-bottom: 15px; display: flex; align-items: center; gap: 5px; border-bottom: 1px solid var(--border); padding-bottom: 15px;}
         
-        /* Container do Player */
         .trailer-container { position: relative; width: 100%; display: flex; justify-content: center; background: #000; border-radius: var(--radius-md); overflow: hidden; min-height: 400px;}
         .trailer-container iframe { width: 100%; height: 550px; border: none; border-radius: 8px;}
         
-        /* Escudo 1 (Topo): Bloqueia Perfil - Z-index menor que o botão X */
         .shield-top { position: absolute; top: 0; left: 0; width: 100%; height: 65px; z-index: 50; cursor: default; }
-        
-        /* Escudo 2 (Rodapé): Bloqueia Instagram e Tela Final - Mais alto para garantir proteção */
         .shield-bottom { position: absolute; bottom: 0; left: 0; width: 100%; height: 110px; z-index: 50; cursor: default; }
 
-        /* Banner Inteligente Animado e Estático */
-        .up-next-banner {
-            background: var(--primary); color: #000; padding: 15px 20px; border-radius: var(--radius-md);
-            margin-top: 15px; margin-bottom: 15px; display: flex; justify-content: space-between;
-            align-items: center; cursor: pointer; 
-            animation: pulse-banner 2s infinite ease-in-out;
-        }
-        @keyframes pulse-banner {
-            0% { transform: scale(1); box-shadow: 0 0 10px rgba(212, 175, 55, 0.4); }
-            50% { transform: scale(1.02); box-shadow: 0 0 25px rgba(212, 175, 55, 0.8); }
-            100% { transform: scale(1); box-shadow: 0 0 10px rgba(212, 175, 55, 0.4); }
-        }
+        .up-next-banner { background: var(--primary); color: #000; padding: 15px 20px; border-radius: var(--radius-md); margin-top: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; animation: pulse-banner 2s infinite ease-in-out; }
+        @keyframes pulse-banner { 0% { transform: scale(1); box-shadow: 0 0 10px rgba(212, 175, 55, 0.4); } 50% { transform: scale(1.02); box-shadow: 0 0 25px rgba(212, 175, 55, 0.8); } 100% { transform: scale(1); box-shadow: 0 0 10px rgba(212, 175, 55, 0.4); } }
         .up-next-info h4 { font-size: 0.75rem; text-transform: uppercase; opacity: 0.9; margin-bottom: 4px; letter-spacing: 1px; color: #000; }
         .up-next-info p { font-size: 1.1rem; font-weight: 800; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px; color: #000; }
         @media(max-width: 400px) { .up-next-info p { max-width: 180px; } }
 
-        /* Linha de Ação Modificada */
         .action-row { display: flex; gap: 10px; margin-top: 15px; margin-bottom: 15px; }
         .btn-action { flex: 1; padding: 15px; border: none; border-radius: var(--radius-md); font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; transition: 0.2s; }
         .btn-guardar { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
         .btn-guardar:hover { border-color: var(--primary); color: var(--primary); }
 
-        /* Botão Dourado Animado e Partilha */
-        .btn-partilhar-dourado {
-            background: linear-gradient(45deg, #FFDF00, #D4AF37, #FFDF00);
-            background-size: 200% 200%;
-            color: #141414;
-            border: none;
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
-            animation: pulsoDourado 2s infinite, brilho 3s ease infinite;
-        }
+        .btn-partilhar-dourado { background: linear-gradient(45deg, #FFDF00, #D4AF37, #FFDF00); background-size: 200% 200%; color: #141414; border: none; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4); animation: pulsoDourado 2s infinite, brilho 3s ease infinite; }
         .btn-partilhar-dourado:hover { color: #000; border-color: #FFDF00; transform: scale(1.02); }
 
-        @keyframes pulsoDourado {
-            0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7); }
-            70% { box-shadow: 0 0 0 15px rgba(212, 175, 55, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
-        }
+        @keyframes pulsoDourado { 0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(212, 175, 55, 0); } 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); } }
         @keyframes brilho { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
-        /* Janela (Modal) de Partilha */
         .sub-modal-partilha { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .sub-modal-conteudo { background: var(--surface); padding: 25px; border-radius: 15px; text-align: center; width: 90%; max-width: 350px; position: relative; border: 1px solid var(--border); animation: abrirModal 0.3s ease-out; }
         .sub-fechar-modal { position: absolute; top: 15px; right: 15px; font-size: 1.5rem; color: var(--text); cursor: pointer; background: none; border: none; }
@@ -118,7 +89,6 @@
         .btn-opcao.mais { background-color: #3b82f6; }
         .img-preview-partilha { width: 100%; height: 160px; object-fit: cover; border-radius: 8px; margin-top: 15px; margin-bottom: 5px; border: 1px solid var(--border); }
 
-        /* Relacionados com Filtro Focado */
         .related-section { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 15px; }
         .related-title { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 15px; display: flex; align-items: center; gap: 8px;}
         .related-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
@@ -251,6 +221,9 @@
         let isFetching = false;
         let recomendadoAtual = null;
 
+        // Variável de verificação para o Deep Linking (Partilha)
+        let isFirstLoad = true;
+
         // Variáveis para a Partilha Exata
         let urlAtualPartilha = "";
         let tituloAtualPartilha = "";
@@ -349,6 +322,27 @@
                 localStorage.setItem('historias_antigas_cache_v1', JSON.stringify(cachedData));
                 allItems = cachedData;
 
+                // ==========================================
+                // LÓGICA DE ABERTURA AUTOMÁTICA DE PARTILHAS
+                // ==========================================
+                if (isFirstLoad) {
+                    isFirstLoad = false;
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const videoId = urlParams.get('v'); // Pega o ID partilhado na URL
+                    
+                    if (videoId) {
+                        // Procura o vídeo correspondente na lista
+                        const videoToOpen = allItems.find(x => x.guid === videoId);
+                        if (videoToOpen) {
+                            setTimeout(() => { openModal(videoToOpen); }, 500);
+                        } else {
+                            // Se não encontrar o vídeo (talvez foi apagado), limpa a URL
+                            const baseUrl = window.location.origin + window.location.pathname;
+                            window.history.replaceState({}, document.title, baseUrl);
+                        }
+                    }
+                }
+
                 if(!isBackground) {
                     const labelMsg = document.getElementById('feed-count-label');
                     if(novosEncontrados || allItems.length > 0) {
@@ -439,12 +433,10 @@
 
         setInterval(() => { fetchContent(true); }, 60000); 
 
-        // NOVO: Algoritmo Inteligente sem Loop (Analisa sempre em Frente)
         function encontrarProximoInteligente(itemAtual, lista) {
             let tituloAtual = (itemAtual.title || "").toLowerCase();
             let match = tituloAtual.match(/(?:parte|pt|ep|episódio|capítulo)\s*(\d+)/i);
             
-            // 1. Tentar encontrar a "Parte 2, Parte 3..." exata
             if (match) {
                 let numProximo = parseInt(match[1]) + 1;
                 let tituloBase = tituloAtual.replace(/(?:parte|pt|ep|episódio|capítulo)\s*\d+/i, '').trim();
@@ -464,7 +456,6 @@
                 }
             }
             
-            // 2. Se não tiver partes, busca pelo mesmo assunto na frente para não voltar atrás (Evita Loop)
             let keywords = tituloAtual.match(/\b\w{5,}\b/g) || [];
             
             if (keywords.length > 0) {
@@ -479,7 +470,6 @@
                 }
             }
             
-            // 3. Se nada for parecido, apenas segue para o vídeo mais recente/próximo da lista
             return lista[(currentIndex + 1) % lista.length];
         }
 
@@ -495,8 +485,12 @@
             const tempoStr = calcularTempoPassado(item.pubDate);
             document.getElementById('m-time').innerHTML = `<i class="far fa-clock"></i> Publicado ${tempoStr.toLowerCase()}`;
             
-            // Captura os dados exatos do vídeo clicado para partilhar
-            urlAtualPartilha = item.link;
+            // ==========================================
+            // GERAÇÃO DO LINK PARTILHADO PARA O SEU SITE
+            // ==========================================
+            const baseUrl = window.location.origin + window.location.pathname; // Pega o endereço exato do seu site
+            urlAtualPartilha = baseUrl + "?v=" + encodeURIComponent(item.guid); // Cria um link com o código do vídeo
+            
             tituloAtualPartilha = rawTitle;
             imagemAtualPartilha = item.thumbnail;
             
@@ -508,7 +502,6 @@
                 if (!urlLimpa.endsWith('/')) { urlLimpa += '/'; }
                 let urlEmbedIg = urlLimpa + 'embed/?hidecaption=true';
                 
-                // ESCUDOS REFORÇADOS: Z-index=50 (para não tapar o botão X) e Altura Máxima no rodapé
                 embedHtml = `
                     <div class="shield-top"></div>
                     <iframe src="${urlEmbedIg}" width="100%" height="550" frameborder="0" scrolling="no" allowtransparency="true"></iframe>
@@ -520,19 +513,17 @@
             
             document.getElementById('m-trailer').innerHTML = embedHtml;
 
-            // Define o Próximo Vídeo Inteligente e mostra no Banner Permanente
             recomendadoAtual = encontrarProximoInteligente(item, currentList);
             const upNextBanner = document.getElementById('m-up-next');
             
             if (recomendadoAtual) {
                 let tituloRecomendado = recomendadoAtual.title ? recomendadoAtual.title.split('#')[0].trim() : "Próximo Episódio";
                 document.getElementById('m-up-next-title').innerText = tituloRecomendado;
-                upNextBanner.style.display = 'flex'; // SEM ATRASO (Estático e Animado via CSS)
+                upNextBanner.style.display = 'flex'; 
             } else {
                 upNextBanner.style.display = 'none';
             }
 
-            // Grelha de Relacionados: FILTRO APENAS POR TÍTULO PARECIDO
             const relatedContainer = document.getElementById('m-related-grid');
             relatedContainer.innerHTML = '';
             
@@ -543,10 +534,9 @@
                 let matches = 0;
                 itemKeywords.forEach(kw => { if(candTitle.includes(kw)) matches++; });
                 x.matchScore = matches;
-                return matches > 0 || itemKeywords.length === 0; // Só entra se tiver pontuação
+                return matches > 0 || itemKeywords.length === 0; 
             }).sort((a,b) => b.matchScore - a.matchScore).slice(0, 6);
             
-            // Se não encontrou nenhuns relacionados, usa os da mesma altura de publicação
             if(relatedItems.length === 0) {
                 relatedItems = currentList.filter(x => x.guid !== item.guid).slice(0, 6);
             }
@@ -582,6 +572,10 @@
                 document.getElementById('modal').style.display = 'none';
                 document.body.style.overflow = 'auto';
                 document.getElementById('m-trailer').innerHTML = ''; 
+                
+                // Limpa o link partilhado da barra de endereços ao fechar (Deixa o site limpo!)
+                const baseUrl = window.location.origin + window.location.pathname;
+                window.history.replaceState({}, document.title, baseUrl);
             }
         }
 
