@@ -11,7 +11,7 @@
             --card-bg: #1e293b;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
-            --accent: #10b981; /* Verde neon estilo painel API */
+            --accent: #10b981;
             --accent-hover: #059669;
         }
 
@@ -204,73 +204,99 @@
             <span id="current-date"></span>
         </section>
 
+        <div id="debug-box" style="background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; padding: 1.2rem; border-radius: 8px; margin-bottom: 1rem; color: #fca5a5; font-size: 0.95rem; display: none; line-height: 1.6;"></div>
+
         <div id="matches-container" class="matches-container">
-            <div class="loading">Sincronizando partidas...</div>
+            <div class="loading">Sincronizando partidas reais...</div>
         </div>
     </main>
 
     <script>
-        // 1. Configurações da API
+        // 1. Configurações Exatas da API Fornecidas
         const API_KEY = '36cb090c-d7ac-4a18-bffc-61d3b57ff1a9';
-        // Substitua o link abaixo pela URL oficial descrita na documentação da SportsAPI Pro
-        const BASE_URL = 'https://api.sportsapipro.com/v1/football/matches'; 
+        const MATCH_URL = 'https://v2.football.sportsapipro.com/api/match/14025056'; 
+        const STATS_URL = 'https://v2.football.sportsapipro.com/api/match/14025056/statistics';
 
         // 2. Definir a data de hoje no cabeçalho
         const dateOptions = { weekday: 'long', day: 'numeric', month: 'long' };
         document.getElementById('current-date').textContent = new Date().toLocaleDateString('pt-BR', dateOptions);
 
-        // 3. Função principal de requisição
+        // 3. Função principal de requisição integrando as novas URLs
         async function fetchMatches() {
             const container = document.getElementById('matches-container');
+            const debugBox = document.getElementById('debug-box');
             
             try {
-                // Exemplo padrão de requisição GET.
-                const response = await fetch(`${BASE_URL}?date=today`, {
+                // A. Buscando os dados da Partida (Match)
+                const responseMatch = await fetch(MATCH_URL, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer ${API_KEY}`,
-                        'Content-Type': 'application/json'
+                        'x-api-key': API_KEY, // Header ajustado conforme o seu cURL
+                        'Accept': 'application/json'
                     }
                 });
 
-                if (!response.ok) {
-                    throw new Error(`Erro na API: Status ${response.status}`);
+                if (!responseMatch.ok) {
+                    throw new Error(`Erro na API de Partida: Código ${responseMatch.status}`);
                 }
 
-                const data = await response.json();
+                // B. Buscando as Estatísticas (Statistics)
+                const responseStats = await fetch(STATS_URL, {
+                    method: 'GET',
+                    headers: {
+                        'x-api-key': API_KEY,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!responseStats.ok) {
+                    console.warn(`Aviso: Não foi possível carregar estatísticas (Código ${responseStats.status})`);
+                }
+
+                // Convertendo as respostas para JSON
+                const matchDataRaw = await responseMatch.json();
+                const statsDataRaw = responseStats.ok ? await responseStats.json() : null;
                 
-                // Verifica se a API retornou o array de jogos (ajuste 'data.data' ou 'data.matches' conforme documentação)
-                const matchData = data.matches || data.data; 
-                renderMatches(matchData);
+                // Como este endpoint busca UMA partida específica (ID 14025056),
+                // transformamos o resultado num Array [ ] para a função renderMatches conseguir ler
+                const matchObject = matchDataRaw.data || matchDataRaw;
+                const matchArray = [matchObject]; 
+
+                renderMatches(matchArray, statsDataRaw);
 
             } catch (error) {
-                console.error('Falha na comunicação com a API:', error);
-                container.innerHTML = `
-                    <div class="loading">
-                        Falha ao carregar as partidas reais. Verifique a URL na documentação da API.
-                        <br><br>Exibindo dados de teste:
-                    </div>`;
-                
-                // Ativa dados simulados para você testar o visual
-                renderMockData(); 
+                // Diagnóstico visual direto na tela
+                container.innerHTML = '';
+                debugBox.style.display = 'block';
+                debugBox.innerHTML = `
+                    <h3 style="color: #ef4444; margin-bottom: 10px; font-size: 1.1rem;">⚠️ Conexão com Servidor Falhou</h3>
+                    <strong>Erro:</strong> ${error.message}<br><br>
+                    Verifique sua conexão ou se a chave API atingiu o limite de requisições.
+                `;
             }
         }
 
-        // 4. Renderizar o HTML dinamicamente
-        function renderMatches(matches) {
+        // 4. Renderizar o HTML dinamicamente com dados reais
+        function renderMatches(matches, statsRaw) {
             const container = document.getElementById('matches-container');
-            
-            if(container.querySelector('.loading') && !container.innerHTML.includes('Exibindo dados de teste')) {
-                container.innerHTML = '';
-            }
+            container.innerHTML = '';
 
-            if (!matches || matches.length === 0) {
-                container.innerHTML = '<div class="loading">Nenhuma partida agendada para hoje.</div>';
+            if (!matches || matches.length === 0 || matches[0] === undefined) {
+                container.innerHTML = '<div class="loading">Dados da partida não encontrados.</div>';
                 return;
             }
 
             matches.forEach(match => {
-                const isLive = match.status === 'LIVE' || (match.status && match.status.includes("'"));
+                // Estrutura defensiva: Tenta encontrar o nome do time nas propriedades mais comuns de APIs esportivas
+                const homeTeamName = match.homeTeam?.name || match.home_team?.name || match.localTeam?.data?.name || 'Time Casa';
+                const awayTeamName = match.awayTeam?.name || match.away_team?.name || match.visitorTeam?.data?.name || 'Time Fora';
+                
+                // Tenta buscar o placar nas propriedades mais comuns
+                const homeScore = match.scores?.homeScore || match.scores?.localteam_score || match.homeScore || 0;
+                const awayScore = match.scores?.awayScore || match.scores?.visitorteam_score || match.awayScore || 0;
+                
+                const statusStr = match.status || match.time?.status || 'Terminado';
+                const isLive = statusStr === 'LIVE' || statusStr.includes("'");
                 const statusClass = isLive ? 'status' : 'status finished';
 
                 const card = document.createElement('div');
@@ -278,37 +304,22 @@
                 
                 card.innerHTML = `
                     <div class="team home">
-                        <span class="team-name">${match.homeTeam ? match.homeTeam.name : 'Time Casa'}</span>
+                        <span class="team-name">${homeTeamName}</span>
                     </div>
                     <div class="match-info">
-                        <div class="${statusClass}">${match.status || 'Terminado'}</div>
-                        <div class="score">${match.homeScore ?? 0} - ${match.awayScore ?? 0}</div>
-                    </div>
+                        <div class="${statusClass}">${statusStr}</div>
+                        <div class="score">${homeScore} - ${awayScore}</div>
+                        </div>
                     <div class="team away">
-                        <span class="team-name">${match.awayTeam ? match.awayTeam.name : 'Time Fora'}</span>
+                        <span class="team-name">${awayTeamName}</span>
                     </div>
                 `;
                 container.appendChild(card);
             });
-        }
-
-        // 5. Dados de Backup (Mock) para testar o Layout do site
-        function renderMockData() {
-            const mockMatches = [
-                { 
-                    homeTeam: { name: 'Costa do Sol' }, awayTeam: { name: 'Ferroviário' }, 
-                    homeScore: 2, awayScore: 1, status: "85'" 
-                },
-                { 
-                    homeTeam: { name: 'Flamengo' }, awayTeam: { name: 'Palmeiras' }, 
-                    homeScore: 0, awayScore: 0, status: "Intervalo" 
-                },
-                { 
-                    homeTeam: { name: 'Real Madrid' }, awayTeam: { name: 'Barcelona' }, 
-                    homeScore: 3, awayScore: 1, status: "FT" 
-                }
-            ];
-            renderMatches(mockMatches);
+            
+            // Console log para você poder visualizar no inspecionar os dados crus que a API entrega
+            console.log("Dados da Partida carregados com sucesso:", matches);
+            if(statsRaw) console.log("Dados de Estatísticas carregados com sucesso:", statsRaw);
         }
 
         // Inicializar a aplicação
