@@ -1,40 +1,318 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Futebol ao Vivo</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Placar Ao Vivo | Resultados</title>
+    
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #10b981; /* Verde neon estilo painel API */
+            --accent-hover: #059669;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            padding-bottom: 2rem;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #334155;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .api-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .pulse-indicator {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        nav {
+            display: flex;
+            gap: 1.5rem;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        nav::-webkit-scrollbar { display: none; }
+
+        nav button {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            padding-bottom: 0.5rem;
+            white-space: nowrap;
+        }
+
+        nav button.active {
+            color: var(--accent);
+            border-bottom: 2px solid var(--accent);
+        }
+
+        main {
+            padding: 1.5rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .date-selector {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #334155;
+        }
+
+        .date-selector h2 { font-size: 1.2rem; }
+        #current-date { color: var(--text-muted); font-size: 0.9rem; }
+
+        .matches-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .match-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .match-card:hover {
+            transform: translateY(-2px);
+            background-color: #273549;
+        }
+
+        .team {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .team.away {
+            flex-direction: row-reverse;
+            text-align: right;
+        }
+
+        .match-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 100px;
+        }
+
+        .score {
+            font-size: 1.6rem;
+            font-weight: 800;
+            padding: 0.2rem 0;
+            color: var(--text-main);
+            letter-spacing: 2px;
+        }
+
+        .status {
+            font-size: 0.8rem;
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .status.finished { color: var(--text-muted); }
+
+        .loading {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 3rem;
+            font-style: italic;
+        }
+    </style>
 </head>
 <body>
+    <header>
+        <div class="header-content">
+            <div class="logo">⚽ SportsLive</div>
+            <div class="api-status">
+                <span class="pulse-indicator"></span> Ao Vivo
+            </div>
+        </div>
+        <nav>
+            <button class="active">Futebol</button>
+            <button>Basquete</button>
+            <button>Tênis</button>
+            <button>MMA</button>
+        </nav>
+    </header>
+    
+    <main>
+        <section class="date-selector">
+            <h2>Jogos de Hoje</h2>
+            <span id="current-date"></span>
+        </section>
 
-<h1>Jogos de Hoje</h1>
-<button onclick="carregarJogos()">Carregar Jogos</button>
+        <div id="matches-container" class="matches-container">
+            <div class="loading">Sincronizando partidas...</div>
+        </div>
+    </main>
 
-<ul id="jogos"></ul>
+    <script>
+        // 1. Configurações da API
+        const API_KEY = '36cb090c-d7ac-4a18-bffc-61d3b57ff1a9';
+        // Substitua o link abaixo pela URL oficial descrita na documentação da SportsAPI Pro
+        const BASE_URL = 'https://api.sportsapipro.com/v1/football/matches'; 
 
-<script>
-const API_KEY = "SUA_NOVA_API_KEY"; // ⚠️ visível
+        // 2. Definir a data de hoje no cabeçalho
+        const dateOptions = { weekday: 'long', day: 'numeric', month: 'long' };
+        document.getElementById('current-date').textContent = new Date().toLocaleDateString('pt-BR', dateOptions);
 
-function carregarJogos() {
-  fetch("https://api.sportsapi.com/v1/football/matches", {
-    method: "GET",
-    headers: {
-      "Authorization": "Bearer " + API_KEY
-    }
-  })
-  .then(res => res.json())
-  .then(data => {
-    const lista = document.getElementById("jogos");
-    lista.innerHTML = "";
+        // 3. Função principal de requisição
+        async function fetchMatches() {
+            const container = document.getElementById('matches-container');
+            
+            try {
+                // Exemplo padrão de requisição GET.
+                const response = await fetch(`${BASE_URL}?date=today`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${API_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
 
-    data.matches.forEach(jogo => {
-      const li = document.createElement("li");
-      li.innerText = `${jogo.home_team} vs ${jogo.away_team}`;
-      lista.appendChild(li);
-    });
-  })
-  .catch(err => console.error("Erro:", err));
-}
-</script>
+                if (!response.ok) {
+                    throw new Error(`Erro na API: Status ${response.status}`);
+                }
 
+                const data = await response.json();
+                
+                // Verifica se a API retornou o array de jogos (ajuste 'data.data' ou 'data.matches' conforme documentação)
+                const matchData = data.matches || data.data; 
+                renderMatches(matchData);
+
+            } catch (error) {
+                console.error('Falha na comunicação com a API:', error);
+                container.innerHTML = `
+                    <div class="loading">
+                        Falha ao carregar as partidas reais. Verifique a URL na documentação da API.
+                        <br><br>Exibindo dados de teste:
+                    </div>`;
+                
+                // Ativa dados simulados para você testar o visual
+                renderMockData(); 
+            }
+        }
+
+        // 4. Renderizar o HTML dinamicamente
+        function renderMatches(matches) {
+            const container = document.getElementById('matches-container');
+            
+            if(container.querySelector('.loading') && !container.innerHTML.includes('Exibindo dados de teste')) {
+                container.innerHTML = '';
+            }
+
+            if (!matches || matches.length === 0) {
+                container.innerHTML = '<div class="loading">Nenhuma partida agendada para hoje.</div>';
+                return;
+            }
+
+            matches.forEach(match => {
+                const isLive = match.status === 'LIVE' || (match.status && match.status.includes("'"));
+                const statusClass = isLive ? 'status' : 'status finished';
+
+                const card = document.createElement('div');
+                card.className = 'match-card';
+                
+                card.innerHTML = `
+                    <div class="team home">
+                        <span class="team-name">${match.homeTeam ? match.homeTeam.name : 'Time Casa'}</span>
+                    </div>
+                    <div class="match-info">
+                        <div class="${statusClass}">${match.status || 'Terminado'}</div>
+                        <div class="score">${match.homeScore ?? 0} - ${match.awayScore ?? 0}</div>
+                    </div>
+                    <div class="team away">
+                        <span class="team-name">${match.awayTeam ? match.awayTeam.name : 'Time Fora'}</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // 5. Dados de Backup (Mock) para testar o Layout do site
+        function renderMockData() {
+            const mockMatches = [
+                { 
+                    homeTeam: { name: 'Costa do Sol' }, awayTeam: { name: 'Ferroviário' }, 
+                    homeScore: 2, awayScore: 1, status: "85'" 
+                },
+                { 
+                    homeTeam: { name: 'Flamengo' }, awayTeam: { name: 'Palmeiras' }, 
+                    homeScore: 0, awayScore: 0, status: "Intervalo" 
+                },
+                { 
+                    homeTeam: { name: 'Real Madrid' }, awayTeam: { name: 'Barcelona' }, 
+                    homeScore: 3, awayScore: 1, status: "FT" 
+                }
+            ];
+            renderMatches(mockMatches);
+        }
+
+        // Inicializar a aplicação
+        fetchMatches();
+    </script>
 </body>
 </html>
