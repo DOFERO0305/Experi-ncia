@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Placar Ao Vivo | Resultados</title>
-    
+    <title>SportsLive Pro | Real-Time</title>
     <style>
         :root {
             --bg-dark: #0f172a;
@@ -12,318 +11,106 @@
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --accent: #10b981;
-            --accent-hover: #059669;
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            padding-bottom: 2rem;
-        }
-
-        header {
-            background-color: var(--card-bg);
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid #334155;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--text-main);
-        }
-
-        .api-status {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.85rem;
-            color: var(--accent);
-            font-weight: 600;
-        }
-
-        .pulse-indicator {
-            width: 8px;
-            height: 8px;
-            background-color: var(--accent);
-            border-radius: 50%;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-            70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-        }
-
-        nav {
-            display: flex;
-            gap: 1.5rem;
-            overflow-x: auto;
-            scrollbar-width: none;
-        }
-
-        nav::-webkit-scrollbar { display: none; }
-
-        nav button {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            padding-bottom: 0.5rem;
-            white-space: nowrap;
-        }
-
-        nav button.active {
-            color: var(--accent);
-            border-bottom: 2px solid var(--accent);
-        }
-
-        main {
-            padding: 1.5rem;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .date-selector {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #334155;
-        }
-
-        .date-selector h2 { font-size: 1.2rem; }
-        #current-date { color: var(--text-muted); font-size: 0.9rem; }
-
-        .matches-container {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .match-card {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 1.2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s;
-        }
-
-        .match-card:hover {
-            transform: translateY(-2px);
-            background-color: #273549;
-        }
-
-        .team {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            flex: 1;
-            font-weight: 500;
-        }
-
-        .team.away {
-            flex-direction: row-reverse;
-            text-align: right;
-        }
-
-        .match-info {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-width: 100px;
-        }
-
-        .score {
-            font-size: 1.6rem;
-            font-weight: 800;
-            padding: 0.2rem 0;
-            color: var(--text-main);
-            letter-spacing: 2px;
-        }
-
-        .status {
-            font-size: 0.8rem;
-            color: var(--accent);
-            font-weight: bold;
-        }
-
-        .status.finished { color: var(--text-muted); }
-
-        .loading {
-            text-align: center;
-            color: var(--text-muted);
-            padding: 3rem;
-            font-style: italic;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
+        body { background: var(--bg-dark); color: var(--text-main); padding: 20px; }
+        header { background: var(--card-bg); padding: 20px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--accent); }
+        .logo { font-size: 1.5rem; font-weight: bold; }
+        .status-live { color: var(--accent); font-size: 0.8rem; display: flex; align-items: center; gap: 5px; }
+        .pulse { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; animation: p 1s infinite; }
+        @keyframes p { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        .match-card { background: var(--card-bg); border-radius: 15px; padding: 25px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .team { flex: 1; text-align: center; font-weight: bold; font-size: 1.1rem; }
+        .score-area { flex: 1; text-align: center; }
+        .score { font-size: 2.5rem; font-weight: 800; display: block; color: var(--accent); }
+        .match-time { font-size: 0.9rem; color: var(--text-muted); background: rgba(0,0,0,0.2); padding: 4px 10px; border-radius: 20px; }
+        #debug { background: #450a0a; color: #fca5a5; padding: 15px; border-radius: 8px; margin-top: 20px; display: none; font-family: monospace; font-size: 12px; white-space: pre-wrap; border: 1px solid #ef4444; }
+        .loading { text-align: center; padding: 50px; color: var(--text-muted); font-style: italic; }
     </style>
 </head>
 <body>
-    <header>
-        <div class="header-content">
-            <div class="logo">⚽ SportsLive</div>
-            <div class="api-status">
-                <span class="pulse-indicator"></span> Ao Vivo
-            </div>
-        </div>
-        <nav>
-            <button class="active">Futebol</button>
-            <button>Basquete</button>
-            <button>Tênis</button>
-            <button>MMA</button>
-        </nav>
-    </header>
+
+<header>
+    <div class="logo">⚽ SportsLive</div>
+    <div class="status-live"><span class="pulse"></span> AO VIVO</div>
+</header>
+
+<div id="container">
+    <div class="loading" id="loader">Conectando aos servidores da SportsAPI Pro...</div>
+</div>
+
+<div id="debug"></div>
+
+<script>
+    const API_KEY = '36cb090c-d7ac-4a18-bffc-61d3b57ff1a9';
+    // Usando o ID que você passou. Se quiser todos os jogos, a URL muda para /matches/today
+    const URL_ALVO = 'https://v2.football.sportsapipro.com/api/match/14025056';
     
-    <main>
-        <section class="date-selector">
-            <h2>Jogos de Hoje</h2>
-            <span id="current-date"></span>
-        </section>
+    // Proxy para evitar erro de CORS no navegador
+    const PROXY = 'https://api.allorigins.win/raw?url=';
 
-        <div id="debug-box" style="background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; padding: 1.2rem; border-radius: 8px; margin-bottom: 1rem; color: #fca5a5; font-size: 0.95rem; display: none; line-height: 1.6;"></div>
-
-        <div id="matches-container" class="matches-container">
-            <div class="loading">Sincronizando partidas reais...</div>
-        </div>
-    </main>
-
-    <script>
-        // 1. Configurações Exatas da API Fornecidas
-        const API_KEY = '36cb090c-d7ac-4a18-bffc-61d3b57ff1a9';
-        const MATCH_URL = 'https://v2.football.sportsapipro.com/api/match/14025056'; 
-        const STATS_URL = 'https://v2.football.sportsapipro.com/api/match/14025056/statistics';
-
-        // 2. Definir a data de hoje no cabeçalho
-        const dateOptions = { weekday: 'long', day: 'numeric', month: 'long' };
-        document.getElementById('current-date').textContent = new Date().toLocaleDateString('pt-BR', dateOptions);
-
-        // 3. Função principal de requisição integrando as novas URLs
-        async function fetchMatches() {
-            const container = document.getElementById('matches-container');
-            const debugBox = document.getElementById('debug-box');
-            
-            try {
-                // A. Buscando os dados da Partida (Match)
-                const responseMatch = await fetch(MATCH_URL, {
-                    method: 'GET',
-                    headers: {
-                        'x-api-key': API_KEY, // Header ajustado conforme o seu cURL
-                        'Accept': 'application/json'
-                    }
-                });
-
-                if (!responseMatch.ok) {
-                    throw new Error(`Erro na API de Partida: Código ${responseMatch.status}`);
+    async function loadData() {
+        const container = document.getElementById('container');
+        const debug = document.getElementById('debug');
+        
+        try {
+            const response = await fetch(PROXY + encodeURIComponent(URL_ALVO), {
+                method: 'GET',
+                headers: {
+                    'x-api-key': API_KEY,
+                    'Accept': 'application/json'
                 }
-
-                // B. Buscando as Estatísticas (Statistics)
-                const responseStats = await fetch(STATS_URL, {
-                    method: 'GET',
-                    headers: {
-                        'x-api-key': API_KEY,
-                        'Accept': 'application/json'
-                    }
-                });
-
-                if (!responseStats.ok) {
-                    console.warn(`Aviso: Não foi possível carregar estatísticas (Código ${responseStats.status})`);
-                }
-
-                // Convertendo as respostas para JSON
-                const matchDataRaw = await responseMatch.json();
-                const statsDataRaw = responseStats.ok ? await responseStats.json() : null;
-                
-                // Como este endpoint busca UMA partida específica (ID 14025056),
-                // transformamos o resultado num Array [ ] para a função renderMatches conseguir ler
-                const matchObject = matchDataRaw.data || matchDataRaw;
-                const matchArray = [matchObject]; 
-
-                renderMatches(matchArray, statsDataRaw);
-
-            } catch (error) {
-                // Diagnóstico visual direto na tela
-                container.innerHTML = '';
-                debugBox.style.display = 'block';
-                debugBox.innerHTML = `
-                    <h3 style="color: #ef4444; margin-bottom: 10px; font-size: 1.1rem;">⚠️ Conexão com Servidor Falhou</h3>
-                    <strong>Erro:</strong> ${error.message}<br><br>
-                    Verifique sua conexão ou se a chave API atingiu o limite de requisições.
-                `;
-            }
-        }
-
-        // 4. Renderizar o HTML dinamicamente com dados reais
-        function renderMatches(matches, statsRaw) {
-            const container = document.getElementById('matches-container');
-            container.innerHTML = '';
-
-            if (!matches || matches.length === 0 || matches[0] === undefined) {
-                container.innerHTML = '<div class="loading">Dados da partida não encontrados.</div>';
-                return;
-            }
-
-            matches.forEach(match => {
-                // Estrutura defensiva: Tenta encontrar o nome do time nas propriedades mais comuns de APIs esportivas
-                const homeTeamName = match.homeTeam?.name || match.home_team?.name || match.localTeam?.data?.name || 'Time Casa';
-                const awayTeamName = match.awayTeam?.name || match.away_team?.name || match.visitorTeam?.data?.name || 'Time Fora';
-                
-                // Tenta buscar o placar nas propriedades mais comuns
-                const homeScore = match.scores?.homeScore || match.scores?.localteam_score || match.homeScore || 0;
-                const awayScore = match.scores?.awayScore || match.scores?.visitorteam_score || match.awayScore || 0;
-                
-                const statusStr = match.status || match.time?.status || 'Terminado';
-                const isLive = statusStr === 'LIVE' || statusStr.includes("'");
-                const statusClass = isLive ? 'status' : 'status finished';
-
-                const card = document.createElement('div');
-                card.className = 'match-card';
-                
-                card.innerHTML = `
-                    <div class="team home">
-                        <span class="team-name">${homeTeamName}</span>
-                    </div>
-                    <div class="match-info">
-                        <div class="${statusClass}">${statusStr}</div>
-                        <div class="score">${homeScore} - ${awayScore}</div>
-                        </div>
-                    <div class="team away">
-                        <span class="team-name">${awayTeamName}</span>
-                    </div>
-                `;
-                container.appendChild(card);
             });
-            
-            // Console log para você poder visualizar no inspecionar os dados crus que a API entrega
-            console.log("Dados da Partida carregados com sucesso:", matches);
-            if(statsRaw) console.log("Dados de Estatísticas carregados com sucesso:", statsRaw);
-        }
 
-        // Inicializar a aplicação
-        fetchMatches();
-    </script>
+            if (!response.ok) throw new Error('Erro na resposta do servidor: ' + response.status);
+
+            const json = await response.json();
+            const data = json.data || json; // Garante pegar os dados se vierem dentro de "data"
+
+            // Log de segurança para você ver no console do navegador (F12)
+            console.log("Dados Recebidos:", data);
+
+            if (data) {
+                renderMatch(data);
+            } else {
+                throw new Error('A API retornou sucesso, mas sem dados da partida.');
+            }
+
+        } catch (err) {
+            document.getElementById('loader').style.display = 'none';
+            debug.style.display = 'block';
+            debug.innerText = "ERRO TÉCNICO:\n" + err.message + "\n\nResposta da API (ver console F12)";
+            console.error(err);
+        }
+    }
+
+    function renderMatch(m) {
+        const container = document.getElementById('container');
+        container.innerHTML = '';
+
+        // Mapeamento dinâmico (Tenta várias chaves comuns em APIs de futebol)
+        const homeName = m.home_team?.name || m.homeTeam?.name || m.localTeam?.name || "Time Casa";
+        const awayName = m.away_team?.name || m.awayTeam?.name || m.visitorTeam?.name || "Time Fora";
+        const homeScore = m.stats?.home_score ?? m.scores?.localteam_score ?? m.home_score ?? 0;
+        const awayScore = m.stats?.away_score ?? m.scores?.visitorteam_score ?? m.away_score ?? 0;
+        const status = m.status_name || m.status || m.time?.status || "Agendado";
+
+        const html = `
+            <div class="match-card">
+                <div class="team">${homeName}</div>
+                <div class="score-area">
+                    <span class="match-time">${status}</span>
+                    <span class="score">${homeScore} - ${awayScore}</span>
+                </div>
+                <div class="team">${awayName}</div>
+            </div>
+            <div style="text-align:center; color:gray; font-size:12px;">ID da Partida: ${m.id || 'N/A'}</div>
+        `;
+        container.innerHTML = html;
+    }
+
+    loadData();
+</script>
+
 </body>
 </html>
